@@ -1,0 +1,26 @@
+name: teardown 
+run-name: Teardown instance 💥
+on: [workflow_dispatch]
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  teardown:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install
+        run: npm i
+
+      - name: Assume role using OIDC
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-region: ${{vars.CDK_DEFAULT_REGION}} 
+          role-to-assume: arn:aws:iam::${{vars.CDK_DEFAULT_ACCOUNT}}:role/${{vars.APPNAME}}-github-ci-role
+
+      - name: Destroy
+        run: npx aws-cdk destroy DevMachine --force

@@ -1,0 +1,9 @@
+name: zlog
+run-name: Change Marker 🔔
+on: [push]
+jobs:
+  zlog:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+

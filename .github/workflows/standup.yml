@@ -1,0 +1,32 @@
+name: standup
+run-name: Standup instance 🚀
+on: [workflow_dispatch]
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  standup:
+    runs-on: ubuntu-latest
+    env:
+      CDK_DEFAULT_ACCOUNT: ${{vars.CDK_DEFAULT_ACCOUNT}}
+      CDK_DEFAULT_REGION: ${{vars.CDK_DEFAULT_REGION}}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install
+        run: npm i
+
+      - name: Assume role using OIDC
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-region: ${{vars.CDK_DEFAULT_REGION}}
+          role-to-assume: arn:aws:iam::${{vars.CDK_DEFAULT_ACCOUNT}}:role/${{vars.APPNAME}}-github-ci-role
+
+      - name: Diff
+        run: npx aws-cdk diff
+
+      - name: Deploy
+        run: npx aws-cdk deploy DevMachine --require-approval never
